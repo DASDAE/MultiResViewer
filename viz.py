@@ -1,8 +1,8 @@
 
-import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
-
+import matplotlib.dates as mdates
+from . import process
 
 def _get_datetime(t):
     date = mdates.num2date(t)
@@ -11,12 +11,14 @@ def _get_datetime(t):
 
 class MultiResViewer:
     def __init__(self, spool_list, figsize=None,scale=None,
-                 scale_type='relative',max_viz_size=200):
+                 scale_type='relative',max_viz_size=200,
+                 pre_process_for_raw = None):
         self.spools = spool_list
         self.zoom_points = []
         self.zoom_history = []
         self.max_size = max_viz_size
         self.fig, self.ax = plt.subplots(figsize=figsize)
+        self.pre_process = pre_process_for_raw
         
         self.waiting_for_zoom = False
         self.waterfall_scale = scale
@@ -44,9 +46,9 @@ class MultiResViewer:
             sp_size = process.estimate_spool_size(sp.select(time=(bgtime,edtime)))
             if sp_size <= self.max_size:
                 DASdata = sp.select(time=(bgtime,edtime)).chunk(time=None,tolerance=3)[0]
-                if i==0:
-                    DASdata = DASdata.tran.velocity_to_strain_rate()  # needs to be changed
-                break;
+                if (i==0) and (self.pre_process is not None):
+                    DASdata = self.pre_process(DASdata)
+                break
         return DASdata
 
     def handle_key_press(self, event):
