@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import dascore as dc
 import os
+import shutil
 from SpoolProcessing import proc,utils
 
 def estimate_spool_size(sp):
@@ -11,6 +12,22 @@ def estimate_spool_size(sp):
         chanN = (row['distance_max']-row['distance_min'])/row['d_distance']
         data_size += timeN*chanN*4/1e6
     return data_size
+
+def check_folder(folder_path):
+
+    if os.path.exists(folder_path):
+        user_input = input(f"Folder '{folder_path}' exists. Do you want to delete it? (y/n): ").strip().lower()
+        if user_input == 'y':
+            try:
+                shutil.rmtree(folder_path)
+                print(f"Folder '{folder_path}' deleted successfully.")
+            except Exception as e:
+                print(f"Error deleting folder: {e}")
+        else:
+            print(f"Folder '{folder_path}' was not deleted.")
+    else:
+        print(f"Folder '{folder_path}' does not exist.")
+
 
 class MultiResProcess:
 
