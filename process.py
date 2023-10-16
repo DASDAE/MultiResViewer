@@ -58,7 +58,7 @@ class MultiResProcess:
     def set_minimum_size(self,minimum_size):
         self.minimum_size = minimum_size
     
-    def downsample_process(self):
+    def downsample_process(self,**kargs):
 
         if not os.path.isdir(self.tar_path):
             os.mkdir(self.tar_path)
@@ -85,9 +85,9 @@ class MultiResProcess:
                 new_freq = freq/self.downsample_factor
 
                 if current_level == 1:
-                    proc.down_sample(current_sp,current_folder,new_freq,pre_process=self.pre_process)
+                    proc.down_sample(current_sp,current_folder,new_freq,pre_process=self.pre_process,**kargs)
                 else:
-                    proc.down_sample(current_sp,current_folder,new_freq,pre_process=None)
+                    proc.down_sample(current_sp,current_folder,new_freq,pre_process=None,**kargs)
                 current_sp = dc.spool(current_folder)
                 current_size = estimate_spool_size(current_sp)
             
