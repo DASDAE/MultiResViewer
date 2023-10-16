@@ -3,17 +3,47 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.dates as mdates
 from . import process
+import dascore as dc
+from glob import glob
+import os
 
 def _get_datetime(t):
     date = mdates.num2date(t)
     return np.datetime64(date.replace(tzinfo=None))
 
+def _create_spool_list(raw_data_path, process_data_path):
+
+    spools = []
+
+    spools.append(dc.spool(raw_data_path))
+
+
+    paths = glob(process_data_path+'/*')
+    for i in range(1,len(paths)+1):
+        datapath = os.path.join(process_data_path,str(i))
+        if os.path.isdir(datapath):
+            spools.append(dc.spool(datapath))
+    
+    return spools
 
 class MultiResViewer:
-    def __init__(self, spool_list, figsize=None,scale=None,
+    def __init__(self, raw_data_path, process_data_path, figsize=None,scale=None,
                  scale_type='relative',max_viz_size=200,
                  pre_process_for_raw = None):
-        self.spools = spool_list
+        """
+        Initializes a MultiResViewer instance.
+
+        Parameters:
+        - raw_data_path (str): The path to the raw data.
+        - process_data_path (str): The path to the processed data.
+        - figsize (tuple, optional): The size of the matplotlib figure (width, height).
+        - scale (float, optional): The scale factor for the waterfall plot. Default is None.
+        - scale_type (str, optional): The type of scaling ('relative' or 'absolute'). Default is 'relative'. 
+                                        This parameter will be passed to dascore waterfall plot function.
+        - max_viz_size (int, optional): The maximum size for visualization. Default is 200. In Mb.
+        - pre_process_for_raw (function, optional): A function to preprocess raw data. Default is None.
+        """
+        self.spools = _create_spool_list(raw_data_path,process_data_path)
         self.zoom_points = []
         self.zoom_history = []
         self.max_size = max_viz_size
@@ -53,7 +83,7 @@ class MultiResViewer:
 
     def handle_key_press(self, event):
         if event.key == 'x':
-            print("Click two points to define the zoom range.")
+            print("Click another point to define the zoom range.")
             self.zoom_points = [] # Reset zoom_points for new zoom
             self.zoom_points.append((event.xdata, event.ydata))
             self.waiting_for_zoom = True 
