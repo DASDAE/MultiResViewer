@@ -11,11 +11,11 @@ def _get_datetime(t):
     date = mdates.num2date(t)
     return np.datetime64(date.replace(tzinfo=None))
 
-def _create_spool_list(raw_data_path, process_data_path):
+def _create_spool_list(raw_data_spool, process_data_path):
 
     spools = []
 
-    spools.append(dc.spool(raw_data_path))
+    spools.append(raw_data_spool)
 
 
     paths = glob(process_data_path+'/*')
@@ -27,14 +27,14 @@ def _create_spool_list(raw_data_path, process_data_path):
     return spools
 
 class MultiResViewer:
-    def __init__(self, raw_data_path, process_data_path, figsize=None,scale=None,
+    def __init__(self, raw_data_spool, process_data_path, figsize=None,scale=None,
                  scale_type='relative',max_viz_size=200,
                  pre_process_for_raw = None):
         """
         Initializes a MultiResViewer instance.
 
         Parameters:
-        - raw_data_path (str): The path to the raw data.
+        - raw_data_spool (dascore.spool): The spool of raw data.
         - process_data_path (str): The path to the processed data.
         - figsize (tuple, optional): The size of the matplotlib figure (width, height).
         - scale (float, optional): The scale factor for the waterfall plot. Default is None.
@@ -43,7 +43,7 @@ class MultiResViewer:
         - max_viz_size (int, optional): The maximum size for visualization. Default is 200. In Mb.
         - pre_process_for_raw (function, optional): A function to preprocess raw data. Default is None.
         """
-        self.spools = _create_spool_list(raw_data_path,process_data_path)
+        self.spools = _create_spool_list(raw_data_spool,process_data_path)
         self.zoom_points = []
         self.zoom_history = []
         self.max_size = max_viz_size
